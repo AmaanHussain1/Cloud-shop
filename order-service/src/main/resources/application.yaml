@@ -16,3 +16,7 @@ spring:
     h2:
       console:
         enabled: true
+
+eureka:
+  instance:
+    prefer-ip-address: true
