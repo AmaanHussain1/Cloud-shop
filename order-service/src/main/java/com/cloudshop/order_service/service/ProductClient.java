@@ -1,5 +1,6 @@
-package com.cloudshop.order_service.config;
+package com.cloudshop.order_service.service;
 
+import com.cloudshop.order_service.config.FeignConfig;
 import com.cloudshop.order_service.dto.ProductResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
