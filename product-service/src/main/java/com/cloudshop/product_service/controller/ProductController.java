@@ -2,6 +2,7 @@ package com.cloudshop.product_service.controller;
 
 import com.cloudshop.product_service.entity.Product;
 import com.cloudshop.product_service.repository.ProductRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,7 +28,9 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
+    @Cacheable(value = "products", key = "#id")
     public Product getProductById(@PathVariable Long id){
+        System.out.println("Fetching product from Database... (If you see this, it wasn't in the cache!)");
         return productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
     }
