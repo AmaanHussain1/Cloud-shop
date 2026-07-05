@@ -15,3 +15,7 @@ spring:
   h2:
     console:
       enabled: true # Lets us view the database in our browser
+
+eureka:
+  instance:
+    prefer-ip-address: true
