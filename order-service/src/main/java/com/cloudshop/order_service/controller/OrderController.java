@@ -6,6 +6,7 @@ import com.cloudshop.order_service.dto.ProductResponse;
 import com.cloudshop.order_service.entity.Order;
 import com.cloudshop.order_service.repository.OrderRepository;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,13 +19,16 @@ public class OrderController {
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
     private final RabbitTemplate rabbitTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     public OrderController(OrderRepository orderRepository,
                            ProductClient productClient,
-                           RabbitTemplate rabbitTemplate) {
+                           RabbitTemplate rabbitTemplate,
+                           KafkaTemplate<String, String> kafkaTemplate) {
         this.orderRepository = orderRepository;
         this.productClient = productClient;
         this.rabbitTemplate = rabbitTemplate;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @GetMapping
@@ -41,9 +45,16 @@ public class OrderController {
         order.setOrderNumber(UUID.randomUUID().toString());
         Order savedOrder = orderRepository.save(order);
 
-        // SEND THE MESSAGE TO RABBITMQ!
+        // Send RabbitMQ Message (Task: Send Email)
         String notificationMessage = "Order " + savedOrder.getOrderNumber() + " placed for " + product.name();
         rabbitTemplate.convertAndSend("order.notifications", notificationMessage);
+
+        // Send Kafka Event (Domain Event: System-wide announcement)
+        String kafkaEvent = "OrderPlaced: ID=" + savedOrder.getOrderNumber() + ", ProductID=" + product.id() + ", Qty=" + order.getQuantity();
+        kafkaTemplate.send("order-placed-topic", kafkaEvent);
+
+        System.out.println("ORDER SERVICE: Successfully pushed message to Kafka!");
+
 
         return new OrderConfirmationResponse(
                 savedOrder.getOrderNumber(),
