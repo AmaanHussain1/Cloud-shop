@@ -10,7 +10,7 @@ public class NotificationListener {
     @RabbitListener(queues = "order.notifications")
     public void handleOrderNotification(String message) {
         System.out.println("======================================");
-        System.out.println("📧 EMAIL SENT TO CUSTOMER!");
+        System.out.println("EMAIL SENT TO CUSTOMER!");
         System.out.println("Message received: " + message);
         System.out.println("======================================");
     }
